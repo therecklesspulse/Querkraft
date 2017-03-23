@@ -4,18 +4,20 @@ using UnityEngine;
 
 public class WeaponCharged : Weapon {
 
-    [SerializeField]
-    bool chargeSpeed;
-    [SerializeField]
-    bool chargeDamage;
+
+    [System.Serializable]
+    struct ChargingAttributes
+    {
+        public bool chargeSpeed;
+        public bool chargeDamage;
+        public float minSpeed;
+        public float minDamage;
+        public float targetCharge;
+    }
 
     [SerializeField]
-    float minSpeed;
-    [SerializeField]
-    float minDamage;
-
-    [SerializeField]
-    float targetCharge = 1f;
+    ChargingAttributes chargingAttributes;
+    
     float currentCharge = 0f;
     float chargeRatio = 0f;
     bool isCharging = false;
@@ -23,10 +25,10 @@ public class WeaponCharged : Weapon {
 	// Update is called once per frame
 	new void Update () {
         base.Update();
-        if (isCharging && currentCharge < targetCharge)
+        if (isCharging && currentCharge < chargingAttributes.targetCharge)
         {
             currentCharge += Time.deltaTime;
-            chargeRatio = Mathf.Clamp01(currentCharge / targetCharge);
+            chargeRatio = Mathf.Clamp01(currentCharge / chargingAttributes.targetCharge);
         }
 	}
 
@@ -58,10 +60,10 @@ public class WeaponCharged : Weapon {
         float setSpeed = weaponAttributes.projectileSpeed;
         float setDamage = weaponAttributes.damage;
 
-        if (chargeSpeed)
-            setSpeed = minSpeed + chargeRatio * (weaponAttributes.projectileSpeed - minSpeed);
-        if (chargeDamage)
-            setDamage = minDamage + chargeRatio * (weaponAttributes.damage - minDamage);
+        if (chargingAttributes.chargeSpeed)
+            setSpeed = chargingAttributes.minSpeed + chargeRatio * (weaponAttributes.projectileSpeed - chargingAttributes.minSpeed);
+        if (chargingAttributes.chargeDamage)
+            setDamage = chargingAttributes.minDamage + chargeRatio * (weaponAttributes.damage - chargingAttributes.minDamage);
 
         attack.SetAttack(transform.parent.gameObject, dir, setSpeed, setDamage);
 

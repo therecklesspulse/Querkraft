@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Weapon : MonoBehaviour {
 
+    [SerializeField]
+    protected string attackPrefabName;
+
     [System.Serializable]
     protected struct WeaponAttributes
     {
@@ -12,21 +15,17 @@ public class Weapon : MonoBehaviour {
         public float damage;
         public float projectileSpeed;
         public float cooldown;
+        public bool isMelee;
+    }
+    public bool IsMelee
+    {
+        get
+        { return weaponAttributes.isMelee; }
     }
 
     [SerializeField]
     protected WeaponAttributes weaponAttributes;
     protected float currentCooldown;
-
-    [SerializeField]
-    protected string attackPrefabName;
-
-    [SerializeField]
-    bool isMelee;
-    public bool IsMelee
-    {
-        get { return isMelee; }
-    }
 
 
     void Start()
@@ -57,7 +56,7 @@ public class Weapon : MonoBehaviour {
     {
         currentCooldown = weaponAttributes.cooldown;
         Attack attack = Instantiate(Resources.Load<GameObject>("Prefabs/Attacks/" + attackPrefabName), transform.position, Quaternion.identity).GetComponent<Attack>();
-        if(isMelee)
+        if(weaponAttributes.isMelee)
             attack.transform.parent = transform;
         return attack;
     }
