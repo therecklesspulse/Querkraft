@@ -156,7 +156,8 @@ public class Movement2D : MonoBehaviour {
                 traslation.y = (hit.distance - SKIN_WIDTH) * directionY;
                 rayLength = hit.distance;
 
-                Grounded = true;
+                if(directionY <= 0)
+                    Grounded = true;
                 vColl = true;
                 slopeAngle = Vector3.Angle(hit.normal, Vector3.up) * Mathf.Sign(hit.normal.x);
             }

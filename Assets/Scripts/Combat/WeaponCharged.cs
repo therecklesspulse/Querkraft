@@ -63,7 +63,7 @@ public class WeaponCharged : Weapon {
         if (chargeDamage)
             setDamage = minDamage + chargeRatio * (weaponAttributes.damage - minDamage);
 
-        attack.SetAttack(dir, setSpeed, setDamage);
+        attack.SetAttack(transform.parent.gameObject, dir, setSpeed, setDamage);
 
         return attack;
     }

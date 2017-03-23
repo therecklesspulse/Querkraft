@@ -19,7 +19,7 @@ public class WeaponStraight : Weapon {
     protected override Attack SpawnAttack(Vector3 dir)
     {
         Attack attack = base.SpawnAttack(dir);
-        attack.SetAttack(dir, weaponAttributes.projectileSpeed, weaponAttributes.damage);
+        attack.SetAttack(transform.parent.gameObject, dir, weaponAttributes.projectileSpeed, weaponAttributes.damage);
         return attack;
     }
 }
