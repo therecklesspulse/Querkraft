@@ -47,23 +47,19 @@ public class AttackProjectile : Attack {
     override protected void CheckImpact()
     {
         base.CheckImpact();
-        LayerMask impactMask = LayerMask.GetMask("Player", "Enemy", "Level");
         Vector3 rayOrigin = transform.position;
         Vector3 rayDir = velocity.normalized;
-        Bounds bounds = GetComponent<SpriteRenderer>().sprite.bounds;
         float rayLength = bounds.extents.y - bounds.center.y + traslation.magnitude;
             
         RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDir, rayLength, impactMask);
         if (hit)
         {
-            if (owner.layer == LayerMask.NameToLayer("Player") && hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+            if(hit.collider.gameObject.layer == LayerMask.NameToLayer("Player") || hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy"))
             {
-                transform.SetParent(hit.transform);
-                hit.collider.gameObject.GetComponent<Enemy>().GetHurt(damage);
-            }
-            else if (owner.layer == LayerMask.NameToLayer("Enemy") && hit.collider.gameObject.layer == LayerMask.NameToLayer("Player"))
-            {
-                hit.collider.gameObject.GetComponent<Player>().GetHurt(damage);
+                HitSomeone(hit);
+
+                if (owner.layer == LayerMask.NameToLayer("Player") && hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+                    transform.SetParent(hit.transform);
             }
 
             if (hit.collider.tag == "Hard" || this.tag == "Hard")
@@ -77,5 +73,12 @@ public class AttackProjectile : Attack {
                 //transform.SetParent(hit.transform);
             }
         }
+    }
+
+    override protected void InitializeImpactParams()
+    {
+        base.InitializeImpactParams();
+        string characterLayer = GetImpactLayerByOwnerLayer();
+        impactMask = LayerMask.GetMask(characterLayer, "Level");
     }
 }

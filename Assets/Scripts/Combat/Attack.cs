@@ -20,17 +20,17 @@ public class Attack : MonoBehaviour {
     protected Vector3 velocity;
     protected Vector3 traslation;
 
-    
+    protected Bounds bounds;
+    protected LayerMask impactMask;
 
 	// Use this for initialization
 	protected void Start () {
-		
+        InitializeImpactParams();
 	}
 	
 	// Update is called once per frame
 	protected void Update () {
         CheckLifeSpan();
-        
 	}
 
     void CheckLifeSpan()
@@ -57,7 +57,7 @@ public class Attack : MonoBehaviour {
 
     virtual protected void CheckImpact()
     {
-
+        
     }
 
     protected void Traslate()
@@ -74,5 +74,30 @@ public class Attack : MonoBehaviour {
         velocity = dir * speed;
         transform.up = dir;
         transform.position += dir * rangeDisplacement;
+    }
+
+    protected void HitSomeone(RaycastHit2D hit)
+    {
+        if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Enemy"))
+        {
+            hit.collider.gameObject.GetComponent<Enemy>().GetHurt(damage);
+        }
+        else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Player"))
+        {
+            hit.collider.gameObject.GetComponent<Player>().GetHurt(damage);
+        }
+    }
+
+    virtual protected void InitializeImpactParams()
+    {
+        bounds = GetComponent<SpriteRenderer>().sprite.bounds;
+    }
+
+    protected string GetImpactLayerByOwnerLayer()
+    {
+        if (owner.layer == LayerMask.NameToLayer("Player"))
+            return "Enemy";
+        else
+            return "Player";
     }
 }
