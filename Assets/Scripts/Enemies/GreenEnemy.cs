@@ -42,10 +42,10 @@ public class GreenEnemy : Enemy {
             iAxis.z = 0f;
             iAxis.Normalize();
         }
-        mov2D.AddAccelX(CharacterInput.RUN_ACCEL * Mathf.Sign(iAxis.x));
-        mov2D.SetVelX(Mathf.Clamp(mov2D.GetVelocity().x, -CharacterInput.RUN_MAX_VEL, CharacterInput.RUN_MAX_VEL));
+        mov2D.AddAccelX(PlayerInput.RUN_ACCEL * Mathf.Sign(iAxis.x));
+        mov2D.SetVelX(Mathf.Clamp(mov2D.GetVelocity().x, -PlayerInput.RUN_MAX_VEL, PlayerInput.RUN_MAX_VEL));
         if (mov2D.Grounded && Mathf.Abs(npVector.x) > DISTANCE_FOR_JUMP - DISTANCE_FOR_JUMP_MARGIN && Mathf.Abs(npVector.x) < DISTANCE_FOR_JUMP + DISTANCE_FOR_JUMP_MARGIN)
-            mov2D.SetVel((iAxis + 1.5f*Vector3.up).normalized * CharacterInput.JUMP_FORCE);
+            mov2D.SetVel((iAxis + 1.5f*Vector3.up).normalized * PlayerInput.JUMP_FORCE);
     }
 
     void ShootingBehaviour()

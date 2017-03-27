@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CharacterInput : MonoBehaviour {
+public class PlayerInput : MonoBehaviour {
 
     enum ControlMode
     {
