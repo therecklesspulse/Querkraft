@@ -275,4 +275,15 @@ public class PlayerInput : MonoBehaviour {
             }
         }
     }
+
+
+    public void ExternalDoubleJump(Vector3 jumpDir)
+    {
+        DoubleJump(jumpDir, GetResidualVelocity(jumpDir));
+        ResetDoubleJump();
+    }
+    void ResetDoubleJump()
+    {
+        doubleJump = false;
+    }
 }

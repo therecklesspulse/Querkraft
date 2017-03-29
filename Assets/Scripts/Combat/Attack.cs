@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Attack : MonoBehaviour {
+public abstract class Attack : MonoBehaviour {
 
     protected const float GRAVITY_VALUE = -19.81f;
     protected Vector3 GRAVITY = new Vector3(0f, GRAVITY_VALUE, 0f);

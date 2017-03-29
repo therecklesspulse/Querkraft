@@ -7,7 +7,7 @@ public class Movement2D : MonoBehaviour {
     // Constants
     const float GRAVITY_VALUE = -19.81f;
     Vector3 GRAVITY = new Vector3(0f, GRAVITY_VALUE, 0f);
-    const float FRICTION = 2f;
+    const float FRICTION = 1f;
     const float WALL_LEAN_ANGLE = 22f;
 
     // Dynamics
@@ -17,6 +17,7 @@ public class Movement2D : MonoBehaviour {
     Vector3 velocity = Vector3.zero;
     Vector3 traslation = Vector3.zero;
     Vector3 instantTraslation = Vector3.zero;
+    Vector3 overridingVelocity = Vector3.zero;
 
     // Shape
     [SerializeField]
@@ -33,6 +34,7 @@ public class Movement2D : MonoBehaviour {
 
     Bounds bounds;
 
+    LayerMask collisionMask;
 
     // Control
     [SerializeField]
@@ -45,13 +47,19 @@ public class Movement2D : MonoBehaviour {
     bool rollIntent = false;
     bool rolling = false;
 
+    // Special Collisions
+    [SerializeField]
+    Character character;
+
 
 	// Use this for initialization
 	void Start ()
     {
         InitializeBounds();
+        collisionMask = LayerMask.GetMask("Level", "Player", "Enemy", "Obstacle");
+        if (!character)
+            character = GetComponent<Character>();
 	}
-
 
 
     void InitializeBounds()
@@ -66,10 +74,6 @@ public class Movement2D : MonoBehaviour {
         bounds.botLeft = new Vector3(-size.x / 2f + SKIN_WIDTH, -size.y / 2f + SKIN_WIDTH, 0f);
         bounds.botRight = new Vector3(size.x / 2f - SKIN_WIDTH, -size.y / 2f + SKIN_WIDTH, 0f);
     }
-
-
-
-
 
 
 
@@ -104,7 +108,7 @@ public class Movement2D : MonoBehaviour {
 
     void ApplyFriction()
     {
-        velocity.x /= FRICTION;
+        velocity.x /= 1+FRICTION;
     }
 
     void HorizontalCollisions()
@@ -121,16 +125,24 @@ public class Movement2D : MonoBehaviour {
         for (int i = 0; i < _horRaysNum; i++)
         {
             Vector3 rayOrigin = transform.position + (directionX > 0 ? bounds.botRight : bounds.botLeft) + new Vector3(0f, size.y/(_horRaysNum-1)*i, 0f);
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection, rayLength, LayerMask.GetMask("Level"));
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection, rayLength, collisionMask);
             if (hit)
             {
-                traslation.x = (hit.distance - SKIN_WIDTH) * directionX;
-                rayLength = hit.distance;
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Level"))
+                {
+                    traslation.x = (hit.distance - SKIN_WIDTH) * directionX;
+                    rayLength = hit.distance;
 
-                //if(Mathf.Abs(Vector3.Angle(hit.normal, Vector3.up)) < WALL_LEAN_ANGLE)
+                    //if(Mathf.Abs(Vector3.Angle(hit.normal, Vector3.up)) < WALL_LEAN_ANGLE)
                     WallLean = Mathf.FloorToInt(Mathf.Sign(hit.normal.x));
 
-                hColl = true;
+                    hColl = true;
+                }
+                else
+                {
+                    character.SpecialCollisions(hit.collider.gameObject);
+                    rayLength = hit.distance;
+                }
             }
             Debug.DrawRay(rayOrigin, rayDirection, Color.red);
         }
@@ -150,16 +162,25 @@ public class Movement2D : MonoBehaviour {
         for (int i = 0; i < _verRaysNum; i++)
         {
             Vector3 rayOrigin = transform.position + (directionY > 0 ? bounds.topLeft : bounds.botLeft) + new Vector3(size.x/(_verRaysNum-1)*i,0f,0f);
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection, rayLength, LayerMask.GetMask("Level"));
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection, rayLength, collisionMask);
             if (hit)
             {
-                traslation.y = (hit.distance - SKIN_WIDTH) * directionY;
-                rayLength = hit.distance;
+                //if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Level"))
+                //{
+                    traslation.y = (hit.distance - SKIN_WIDTH) * directionY;
+                    rayLength = hit.distance;
 
-                if(directionY <= 0)
-                    Grounded = true;
-                vColl = true;
-                slopeAngle = Vector3.Angle(hit.normal, Vector3.up) * Mathf.Sign(hit.normal.x);
+                    if (directionY <= 0)
+                        Grounded = true;
+                    vColl = true;
+                    slopeAngle = Vector3.Angle(hit.normal, Vector3.up) * Mathf.Sign(hit.normal.x);
+                //}
+                //else
+                if (hit.collider.gameObject.layer != LayerMask.NameToLayer("Level"))
+                {
+                    character.SpecialCollisions(hit.collider.gameObject);
+                    rayLength = hit.distance;
+                }
             }
 
             Debug.DrawRay(rayOrigin, rayDirection, Color.red);
@@ -179,7 +200,11 @@ public class Movement2D : MonoBehaviour {
             traslation.x -= instantTraslation.x;
         if (!vColl)
             traslation.y -= instantTraslation.y;
-        velocity = traslation / Time.deltaTime;
+        if (overridingVelocity == Vector3.zero)
+            velocity = traslation / Time.deltaTime;
+        else
+            velocity = overridingVelocity;
+        overridingVelocity = Vector3.zero;
     }
 
 
@@ -227,6 +252,14 @@ public class Movement2D : MonoBehaviour {
     public void AddInstantTraslation(Vector3 itras)
     {
         instantTraslation += itras;
+    }
+    public void SetOverridingVel(Vector3 ovVel)
+    {
+        overridingVelocity = ovVel;
+    }
+    public void AddOverridingVel(Vector3 ovVel)
+    {
+        overridingVelocity += ovVel;
     }
 
     // PhysicGetters

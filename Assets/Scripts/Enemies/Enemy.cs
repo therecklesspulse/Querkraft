@@ -2,20 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour {
+public class Enemy : Character {
 
     protected const string ATTACKS_PATH = "Prefabs/Attacks/EnemyAttacks/";
+
     protected static Player[] players;
     protected Player nearestPlayer;
     protected Vector3 npVector;
 
-    [SerializeField]
-    protected Movement2D mov2D;
-
     protected Vector3 iAxis = Vector2.zero;
 
-    [SerializeField]
-    protected int health = 10;
     [SerializeField]
     protected float sleep = 1f;
     [SerializeField]
@@ -24,17 +20,18 @@ public class Enemy : MonoBehaviour {
     protected float REFLEXES = 0.5f;
     protected float reflexesTimer = 0f;
 
-    // Use this for initialization
-    protected void Start () {
-        InitializePlayerList();
+    [SerializeField]
+    protected float PUSH_FORCE = PlayerInput.JUMP_FORCE;
 
-        if (!mov2D)
-            mov2D = GetComponent<Movement2D>();
+    // Use this for initialization
+    protected new void Start () {
+        base.Start();
+        InitializePlayerList();
 	}
 	
 	// Update is called once per frame
-	protected void Update () {
-        
+	protected new void Update () {
+        base.Update();
         UdateNearestPlayer();
         if(sleep > 0)
             sleep -= Time.deltaTime;
@@ -85,14 +82,22 @@ public class Enemy : MonoBehaviour {
 
     }
 
-    public virtual void GetHurt(int damage)
+    override public void GetHurt(int damage)
     {
-        health -= damage;
+        base.GetHurt(damage);
         if (health > 0)
+        {
             Debug.Log(name + " remaining Health: " + health);
+            mov2D.AddInstantTraslation(-mov2D.GetVelocity() * Time.deltaTime);
+        }
         else {
             gameObject.SetActive(false);
             Destroy(gameObject);
         }
+    }
+
+    protected void ResetReflexes()
+    {
+        reflexesTimer = REFLEXES;
     }
 }
