@@ -197,6 +197,10 @@ public class PlayerInput : MonoBehaviour {
             residualVelocity.y = 0f;
         if (jumpDir.x != 0 && Mathf.Sign(jumpDir.x) == Mathf.Sign(residualVelocity.x))
             residualVelocity.x = 0f;
+        // Tentative
+        if (xAxis != 0 || yAxis != 0)
+            residualVelocity = Vector3.zero;
+        //
         return residualVelocity;
     }
 

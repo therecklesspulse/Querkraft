@@ -47,7 +47,7 @@ public class Character : MonoBehaviour {
             spriteRenderer.enabled = Mathf.Sin(graceTime * FLICKING_FREQ) > 0;
     }
 
-	virtual public void SpecialCollisions(GameObject other)
+	virtual public void SpecialCollisions(RaycastHit2D hit)
     {
 
     }
@@ -73,5 +73,10 @@ public class Character : MonoBehaviour {
     protected Vector3 GetPushVector(float subjectX, float predicateX)
     {
         return new Vector3(Mathf.Sign(predicateX - subjectX), 2f, 0f).normalized;
+    }
+
+    virtual public void Die()
+    {
+        Destroy(gameObject);
     }
 }

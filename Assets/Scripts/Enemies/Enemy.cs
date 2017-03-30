@@ -6,7 +6,6 @@ public class Enemy : Character {
 
     protected const string ATTACKS_PATH = "Prefabs/Attacks/EnemyAttacks/";
 
-    protected static Player[] players;
     protected Player nearestPlayer;
     protected Vector3 npVector;
 
@@ -15,7 +14,7 @@ public class Enemy : Character {
     [SerializeField]
     protected float sleep = 1f;
     [SerializeField]
-    protected float SIGHT_RANGE = 6f;
+    protected float SIGHT_RANGE = 8f;
     [SerializeField]
     protected float REFLEXES = 0.5f;
     protected float reflexesTimer = 0f;
@@ -23,21 +22,34 @@ public class Enemy : Character {
     [SerializeField]
     protected float PUSH_FORCE = PlayerInput.JUMP_FORCE;
 
+    [SerializeField]
+    protected int CONTACT_DAMAGE = 1;
+
+    protected bool awake = false;
+
+    EnemySpawner spawner;
+
     // Use this for initialization
     protected new void Start () {
         base.Start();
-        InitializePlayerList();
+        //InitializePlayerList();
 	}
 	
 	// Update is called once per frame
 	protected new void Update () {
         base.Update();
-        UdateNearestPlayer();
-        if(sleep > 0)
-            sleep -= Time.deltaTime;
+        //UdateNearestPlayer();
+        PlayerList.GetNearestPlayer(transform.position, ref nearestPlayer, ref npVector);
+        if (!awake)
+            CheckAwake();
+        else
+        {
+            if (sleep > 0)
+                sleep -= Time.deltaTime;
 
-        if (reflexesTimer > 0)
-            reflexesTimer -= Time.deltaTime;
+            if (reflexesTimer > 0)
+                reflexesTimer -= Time.deltaTime;
+        }
         
     }
 
@@ -47,7 +59,7 @@ public class Enemy : Character {
             reflexesTimer = REFLEXES;
     }
 
-    void InitializePlayerList()
+    /*void InitializePlayerList()
     {
         GameObject[] playerGOs = GameObject.FindGameObjectsWithTag("Player");
         players = new Player[playerGOs.Length];
@@ -56,9 +68,9 @@ public class Enemy : Character {
 
         nearestPlayer = players[0];
         npVector = nearestPlayer.transform.position - transform.position;
-    }
+    }*/
 
-    void UdateNearestPlayer()
+    /*void UdateNearestPlayer()
     {
         if (players.Length > 1)
         {
@@ -75,7 +87,14 @@ public class Enemy : Character {
         else {
             npVector = nearestPlayer.transform.position - transform.position;
         }
+    }*/
+
+    void CheckAwake()
+    {
+        awake = Vector3.Distance(nearestPlayer.transform.position, transform.position) <= SIGHT_RANGE;
     }
+
+
 
     protected virtual void MovementBehaviour()
     {
@@ -91,13 +110,41 @@ public class Enemy : Character {
             mov2D.AddInstantTraslation(-mov2D.GetVelocity() * Time.deltaTime);
         }
         else {
-            gameObject.SetActive(false);
-            Destroy(gameObject);
+            Die();
         }
     }
 
     protected void ResetReflexes()
     {
         reflexesTimer = REFLEXES;
+    }
+
+    override public void SpecialCollisions(RaycastHit2D hit)
+    {
+        base.SpecialCollisions(hit);
+        GameObject other = hit.collider.gameObject;
+        if (IsPlayer(other))
+        {
+            Player player = other.GetComponent<Player>();
+            if (!player.IsGraced())
+            {
+                mov2D.SetVel(Vector3.zero);
+                ResetReflexes();
+
+                player.GetHurt(CONTACT_DAMAGE);
+                player.BePushed(GetPushVector(transform.position.x, player.transform.position.x), PUSH_FORCE);
+            }
+        }
+    }
+
+    public void SetSpawner(EnemySpawner spwnr)
+    {
+        spawner = spwnr;
+    }
+    override public void Die()
+    {
+        if (spawner)
+            spawner.SomeoneDied();
+        base.Die();
     }
 }

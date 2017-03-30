@@ -11,7 +11,6 @@ public class GreenEnemy : Enemy {
     const float ATTACK_COOLDOWN = 0.5f;
     const int ATTACK_DAMAGE = 1;
     const float ATTACK_SPEED = 1f;
-    const int CONTACT_DAMAGE = 1;
 
     float attackCooldown = 0f;
 
@@ -23,7 +22,7 @@ public class GreenEnemy : Enemy {
 	// Update is called once per frame
 	new void Update () {
         base.Update();
-        if (sleep <= 0f)
+        if (awake && sleep <= 0f)
         {
             MovementBehaviour();
             if (attackCooldown > 0f)
@@ -31,7 +30,6 @@ public class GreenEnemy : Enemy {
             else {
                 ShootingBehaviour();
             }
-            
         }
 	}
 
@@ -64,22 +62,5 @@ public class GreenEnemy : Enemy {
         attackCooldown = ATTACK_COOLDOWN;
         Attack attack = Instantiate(Resources.Load<GameObject>(ATTACKS_PATH + ATTACK_NAME), transform.position, Quaternion.identity).GetComponent<Attack>();
         attack.SetAttack(gameObject, Vector3.up, ATTACK_SPEED, ATTACK_DAMAGE);
-    }
-
-    override public void SpecialCollisions(GameObject other)
-    {
-        base.SpecialCollisions(other);
-        if (IsPlayer(other))
-        {
-            Player player = other.GetComponent<Player>();
-            if (!player.IsGraced())
-            {
-                mov2D.SetVel(Vector3.zero);
-                ResetReflexes();
-
-                player.GetHurt(CONTACT_DAMAGE);
-                player.BePushed(GetPushVector(transform.position.x, player.transform.position.x), PUSH_FORCE);
-            }
-        }
     }
 }

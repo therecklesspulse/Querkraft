@@ -23,8 +23,8 @@ public class Movement2D : MonoBehaviour {
     [SerializeField]
     Vector3 size = new Vector3(1f,1f,0f);
     float SKIN_WIDTH = 0.01f;
-    int _horRaysNum = 5;
-    int _verRaysNum = 5;
+    int _horRaysNum = 7;
+    int _verRaysNum = 7;
 
     struct Bounds
     {
@@ -138,11 +138,11 @@ public class Movement2D : MonoBehaviour {
 
                     hColl = true;
                 }
-                else
-                {
-                    character.SpecialCollisions(hit.collider.gameObject);
-                    rayLength = hit.distance;
-                }
+                //else
+                //{
+                    character.SpecialCollisions(hit);
+                    //rayLength = hit.distance;
+                //}
             }
             Debug.DrawRay(rayOrigin, rayDirection, Color.red);
         }
@@ -165,8 +165,8 @@ public class Movement2D : MonoBehaviour {
             RaycastHit2D hit = Physics2D.Raycast(rayOrigin, rayDirection, rayLength, collisionMask);
             if (hit)
             {
-                //if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Level"))
-                //{
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Level"))
+                {
                     traslation.y = (hit.distance - SKIN_WIDTH) * directionY;
                     rayLength = hit.distance;
 
@@ -174,13 +174,13 @@ public class Movement2D : MonoBehaviour {
                         Grounded = true;
                     vColl = true;
                     slopeAngle = Vector3.Angle(hit.normal, Vector3.up) * Mathf.Sign(hit.normal.x);
-                //}
-                //else
-                if (hit.collider.gameObject.layer != LayerMask.NameToLayer("Level"))
-                {
-                    character.SpecialCollisions(hit.collider.gameObject);
-                    rayLength = hit.distance;
                 }
+                //else
+                //if (hit.collider.gameObject.layer != LayerMask.NameToLayer("Level"))
+                //{
+                    character.SpecialCollisions(hit);
+                    //rayLength = hit.distance;
+                //}
             }
 
             Debug.DrawRay(rayOrigin, rayDirection, Color.red);

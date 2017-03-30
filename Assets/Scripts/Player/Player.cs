@@ -33,9 +33,10 @@ public class Player : Character {
         }
     }
 
-    override public void SpecialCollisions(GameObject other)
+    override public void SpecialCollisions(RaycastHit2D hit)
     {
-        base.SpecialCollisions(other);
+        base.SpecialCollisions(hit);
+        GameObject other = hit.collider.gameObject;
         if (!IsGraced())
         {
             if (IsObstacle(other))
@@ -48,7 +49,7 @@ public class Player : Character {
             else if (IsEnemy(other))
             {
                 Enemy enemy = other.GetComponent<Enemy>();
-                enemy.SpecialCollisions(gameObject);
+                enemy.SpecialCollisions(hit);
             }
         }
     }
