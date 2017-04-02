@@ -87,8 +87,10 @@ public class Movement2D : MonoBehaviour {
     {
         CalculateDynamics();
 
-        HorizontalCollisions();
-        VerticalCollisions();
+        if(traslation.x != 0)
+            HorizontalCollisions();
+        if(traslation.y != 0)
+            VerticalCollisions();
 
         Traslate();
         FixVelocity();

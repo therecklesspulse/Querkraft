@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class WeaponStraight : Weapon {
 
-    const float STRAIGHT_MAX_CHARGE = 1f;
+    //const float STRAIGHT_MAX_CHARGE = 1f;
 
     public override bool AttackDown(Vector3 dir)
     {
